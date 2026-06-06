@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WEBAVY - Order Management</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Tahoma,sans-serif}
+body{background:#0b1120;color:#fff}
+.sidebar{position:fixed;right:0;top:0;width:240px;height:100%;background:#111827;padding:20px}
+.sidebar h2{color:#60a5fa;margin-bottom:20px}
+.sidebar a{display:block;color:#fff;text-decoration:none;padding:12px;margin:8px 0;background:#1f2937;border-radius:10px}
+.main{margin-right:260px;padding:20px}
+.header{background:#111827;padding:20px;border-radius:15px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:15px;margin:20px 0}
+.card{background:#111827;padding:20px;border-radius:15px;text-align:center;border:1px solid #2563eb}
+.form{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+input,button,select{padding:12px;border:none;border-radius:10px}
+button{background:#2563eb;color:#fff;cursor:pointer}
+.orders{margin-top:20px}
+.order{background:#111827;padding:15px;border-radius:15px;margin-bottom:10px;border-right:5px solid #3b82f6}
+.new{border-right-color:#3b82f6}
+.progress{border-right-color:#f59e0b}
+.done{border-right-color:#22c55e}
+.actions button{margin:4px}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+<h2>🚀 WEBAVY</h2>
+<a href="#">📦 الطلبات</a>
+<a href="#">👥 العملاء</a>
+<a href="#">📊 التقارير</a>
+<a href="#">⚙️ الإعدادات</a>
+</div>
+
+<div class="main">
+<div class="header">
+<h1>Order Management Dashboard</h1>
+<p>إدارة طلبات الشركة والعملاء باحترافية</p>
+</div>
+
+<div class="stats">
+<div class="card"><h2 id="total">0</h2><p>إجمالي الطلبات</p></div>
+<div class="card"><h2 id="newCount">0</h2><p>طلبات جديدة</p></div>
+<div class="card"><h2 id="progressCount">0</h2><p>قيد التنفيذ</p></div>
+<div class="card"><h2 id="doneCount">0</h2><p>مكتملة</p></div>
+</div>
+
+<div class="form">
+<input id="client" placeholder="اسم العميل">
+<input id="service" placeholder="الخدمة">
+<input id="price" placeholder="السعر">
+<button onclick="addOrder()">إضافة طلب</button>
+</div>
+
+<div class="orders" id="orders"></div>
+</div>
+
+<script>
+let orders=JSON.parse(localStorage.getItem('webavy_orders')||'[]');
+
+function save(){
+localStorage.setItem('webavy_orders',JSON.stringify(orders));
+render();
+}
+
+function addOrder(){
+const client=document.getElementById('client').value.trim();
+const service=document.getElementById('service').value.trim();
+const price=document.getElementById('price').value.trim();
+
+if(!client||!service)return;
+
+orders.unshift({
+id:Date.now(),
+client,service,price,
+status:'new',
+date:new Date().toLocaleString('ar-EG')
+});
+
+document.getElementById('client').value='';
+document.getElementById('service').value='';
+document.getElementById('price').value='';
+
+save();
+}
+
+function setStatus(id,status){
+orders=orders.map(o=>o.id===id?{...o,status}:o);
+save();
+}
+
+function removeOrder(id){
+orders=orders.filter(o=>o.id!==id);
+save();
+}
+
+function render(){
+const box=document.getElementById('orders');
+box.innerHTML='';
+
+orders.forEach((o,i)=>{
+box.innerHTML+=`
+<div class="order ${o.status}">
+<h3>📦 Order #${i+1}</h3>
+<p>👤 العميل: ${o.client}</p>
+<p>🛠️ الخدمة: ${o.service}</p>
+<p>💰 السعر: ${o.price} جنيه</p>
+<p>📅 ${o.date}</p>
+<p>📌 الحالة: ${o.status}</p>
+
+<div class="actions">
+<button onclick="setStatus(${o.id},'progress')">⏳ قيد التنفيذ</button>
+<button onclick="setStatus(${o.id},'done')">✅ مكتمل</button>
+<button onclick="removeOrder(${o.id})">🗑️ حذف</button>
+</div>
+</div>`;
+});
+
+document.getElementById('total').innerText=orders.length;
+document.getElementById('newCount').innerText=orders.filter(x=>x.status==='new').length;
+document.getElementById('progressCount').innerText=orders.filter(x=>x.status==='progress').length;
+document.getElementById('doneCount').innerText=orders.filter(x=>x.status==='done').length;
+}
+
+render();
+</script>
+</body>
+</html>
