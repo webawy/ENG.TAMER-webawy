@@ -3,129 +3,146 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WEBAVY - Order Management</title>
+<title>نظام إدارة الأوردرات</title>
+
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Tahoma,sans-serif}
-body{background:#0b1120;color:#fff}
-.sidebar{position:fixed;right:0;top:0;width:240px;height:100%;background:#111827;padding:20px}
-.sidebar h2{color:#60a5fa;margin-bottom:20px}
-.sidebar a{display:block;color:#fff;text-decoration:none;padding:12px;margin:8px 0;background:#1f2937;border-radius:10px}
-.main{margin-right:260px;padding:20px}
-.header{background:#111827;padding:20px;border-radius:15px}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:15px;margin:20px 0}
-.card{background:#111827;padding:20px;border-radius:15px;text-align:center;border:1px solid #2563eb}
-.form{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-input,button,select{padding:12px;border:none;border-radius:10px}
-button{background:#2563eb;color:#fff;cursor:pointer}
-.orders{margin-top:20px}
-.order{background:#111827;padding:15px;border-radius:15px;margin-bottom:10px;border-right:5px solid #3b82f6}
-.new{border-right-color:#3b82f6}
-.progress{border-right-color:#f59e0b}
-.done{border-right-color:#22c55e}
-.actions button{margin:4px}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Tahoma, Arial, sans-serif;}
+body{background:#0f172a;color:#fff;padding:20px;}
+.container{max-width:1400px;margin:auto;}
+.header{background:linear-gradient(135deg,#2563eb,#06b6d4);padding:25px;border-radius:20px;margin-bottom:20px;box-shadow:0 10px 25px rgba(0,0,0,.3);}
+.header h1{font-size:32px;}
+.header p{margin-top:8px;opacity:.9;}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:15px;margin-bottom:20px;}
+.card{background:#1e293b;padding:20px;border-radius:15px;box-shadow:0 5px 15px rgba(0,0,0,.3);}
+.card h2{font-size:15px;color:#94a3b8;margin-bottom:10px;}
+.card span{font-size:28px;font-weight:bold;}
+.form-box{background:#1e293b;padding:20px;border-radius:15px;margin-bottom:20px;}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px;}
+input,select,textarea{width:100%;padding:12px;border:none;outline:none;border-radius:10px;background:#334155;color:#fff;}
+textarea{height:100px;resize:none;}
+.btn{background:#2563eb;color:#fff;border:none;padding:12px;border-radius:10px;cursor:pointer;font-weight:bold;}
+.search{margin-bottom:20px;}
+.orders{display:grid;gap:15px;}
+.order{background:#1e293b;padding:20px;border-radius:15px;border-right:6px solid #facc15;}
+.order.done{border-right-color:#22c55e;}
+.empty{text-align:center;padding:40px;background:#1e293b;border-radius:15px;color:#94a3b8;}
+.footer{text-align:center;margin-top:30px;color:#64748b;}
 </style>
 </head>
 <body>
 
-<div class="sidebar">
-<h2>🚀 WEBAVY</h2>
-<a href="#">📦 الطلبات</a>
-<a href="#">👥 العملاء</a>
-<a href="#">📊 التقارير</a>
-<a href="#">⚙️ الإعدادات</a>
-</div>
-
-<div class="main">
+<div class="container">
 <div class="header">
-<h1>Order Management Dashboard</h1>
-<p>إدارة طلبات الشركة والعملاء باحترافية</p>
+<h1>منصه ENG.TAMER</h1>
 </div>
 
 <div class="stats">
-<div class="card"><h2 id="total">0</h2><p>إجمالي الطلبات</p></div>
-<div class="card"><h2 id="newCount">0</h2><p>طلبات جديدة</p></div>
-<div class="card"><h2 id="progressCount">0</h2><p>قيد التنفيذ</p></div>
-<div class="card"><h2 id="doneCount">0</h2><p>مكتملة</p></div>
+<div class="card"><h2>إجمالي الأوردرات</h2><span id="totalOrders">0</span></div>
+<div class="card"><h2>تم التنفيذ</h2><span id="doneOrders">0</span></div>
+<div class="card"><h2>قيد التنفيذ</h2><span id="pendingOrders">0</span></div>
+<div class="card"><h2>إجمالي المبيعات</h2><span id="totalSales">0</span></div>
 </div>
 
-<div class="form">
-<input id="client" placeholder="اسم العميل">
-<input id="service" placeholder="الخدمة">
-<input id="price" placeholder="السعر">
-<button onclick="addOrder()">إضافة طلب</button>
+<div class="form-box">
+<h2>إضافة أوردر جديد</h2>
+<div class="grid">
+<input type="text" id="clientName" placeholder="اسم العميل">
+<input type="text" id="clientPhone" placeholder="رقم العميل">
+<input type="number" id="orderPrice" placeholder="سعر الطلب">
+</div>
+<br>
+<textarea id="orderDetails" placeholder="تفاصيل الطلب"></textarea>
+<br><br>
+<button class="btn" onclick="addOrder()">إضافة الأوردر</button>
 </div>
 
-<div class="orders" id="orders"></div>
+<div class="search">
+<input type="text" id="searchInput" placeholder="البحث عن عميل..." onkeyup="renderOrders()">
+</div>
+
+<div id="ordersContainer" class="orders"></div>
+<div class="footer">نظام إدارة الأوردرات © 2026</div>
 </div>
 
 <script>
-let orders=JSON.parse(localStorage.getItem('webavy_orders')||'[]');
+let orders = JSON.parse(localStorage.getItem("orders")) || [];
 
-function save(){
-localStorage.setItem('webavy_orders',JSON.stringify(orders));
-render();
-}
+function saveData(){localStorage.setItem("orders",JSON.stringify(orders));}
 
 function addOrder(){
-const client=document.getElementById('client').value.trim();
-const service=document.getElementById('service').value.trim();
-const price=document.getElementById('price').value.trim();
+let name=document.getElementById("clientName").value;
+let phone=document.getElementById("clientPhone").value;
+let price=document.getElementById("orderPrice").value;
+let details=document.getElementById("orderDetails").value;
 
-if(!client||!service)return;
+if(!name||!phone||!price||!details){alert("أكمل جميع البيانات");return;}
 
+let now=new Date();
 orders.unshift({
-id:Date.now(),
-client,service,price,
-status:'new',
-date:new Date().toLocaleString('ar-EG')
+id:Date.now(),name,phone,price,details,
+date:now.toLocaleDateString('ar-EG'),
+time:now.toLocaleTimeString('ar-EG'),
+status:"pending"
 });
 
-document.getElementById('client').value='';
-document.getElementById('service').value='';
-document.getElementById('price').value='';
-
-save();
+saveData();
+document.getElementById("clientName").value="";
+document.getElementById("clientPhone").value="";
+document.getElementById("orderPrice").value="";
+document.getElementById("orderDetails").value="";
+renderOrders();
 }
 
-function setStatus(id,status){
-orders=orders.map(o=>o.id===id?{...o,status}:o);
-save();
+function markDone(id){
+orders=orders.map(o=>{if(o.id===id)o.status="done"; return o;});
+saveData(); renderOrders();
 }
 
-function removeOrder(id){
+function deleteOrder(id){
+if(confirm("حذف الأوردر؟")){
 orders=orders.filter(o=>o.id!==id);
-save();
+saveData(); renderOrders();
+}
 }
 
-function render(){
-const box=document.getElementById('orders');
-box.innerHTML='';
+function renderOrders(){
+let search=document.getElementById("searchInput").value.toLowerCase();
+let container=document.getElementById("ordersContainer");
+let filtered=orders.filter(o=>o.name.toLowerCase().includes(search));
+container.innerHTML="";
 
-orders.forEach((o,i)=>{
-box.innerHTML+=`
-<div class="order ${o.status}">
-<h3>📦 Order #${i+1}</h3>
-<p>👤 العميل: ${o.client}</p>
-<p>🛠️ الخدمة: ${o.service}</p>
-<p>💰 السعر: ${o.price} جنيه</p>
-<p>📅 ${o.date}</p>
-<p>📌 الحالة: ${o.status}</p>
+if(filtered.length===0){
+container.innerHTML='<div class="empty">لا توجد أوردرات</div>';
+}
 
-<div class="actions">
-<button onclick="setStatus(${o.id},'progress')">⏳ قيد التنفيذ</button>
-<button onclick="setStatus(${o.id},'done')">✅ مكتمل</button>
-<button onclick="removeOrder(${o.id})">🗑️ حذف</button>
-</div>
+filtered.forEach(order=>{
+container.innerHTML+=`
+<div class="order ${order.status==="done"?"done":""}">
+<h3>${order.name}</h3>
+<p>📞 ${order.phone}</p>
+<p>📝 ${order.details}</p>
+<p>💰 ${order.price} ج</p>
+<p>📅 ${order.date}</p>
+<p>⏰ ${order.time}</p>
+<p>${order.status==="done"?"🟢 تم التنفيذ":"🟡 قيد التنفيذ"}</p>
+<button class="btn" onclick="markDone(${order.id})">تم التنفيذ</button>
+<button class="btn" onclick="deleteOrder(${order.id})">حذف</button>
 </div>`;
 });
 
-document.getElementById('total').innerText=orders.length;
-document.getElementById('newCount').innerText=orders.filter(x=>x.status==='new').length;
-document.getElementById('progressCount').innerText=orders.filter(x=>x.status==='progress').length;
-document.getElementById('doneCount').innerText=orders.filter(x=>x.status==='done').length;
+updateStats();
 }
 
-render();
+function updateStats(){
+document.getElementById("totalOrders").innerText=orders.length;
+document.getElementById("doneOrders").innerText=orders.filter(x=>x.status==="done").length;
+document.getElementById("pendingOrders").innerText=orders.filter(x=>x.status==="pending").length;
+let total=orders.reduce((s,i)=>s+Number(i.price),0);
+document.getElementById("totalSales").innerText=total+" ج";
+}
+
+renderOrders();
 </script>
+
 </body>
 </html>
